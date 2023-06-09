@@ -8,8 +8,8 @@ api = Api(app)
 
 
 api.add_resource(Tarefas,'/tarefas') 
-
 api.add_resource(Tarefa,'/tarefas/<string:tarefa_id>') 
+
 
 if __name__ == '__main__':
     app.run(debug=True)
