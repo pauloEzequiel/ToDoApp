@@ -6,8 +6,7 @@ taskbox = document.querySelector(".todo-list")
 
 function salvar(){
   console.log(JSON.stringify(document.querySelector(".todo-list-input").value))
-  document.querySelector(".todo-list").innerHTML += "<li><div class='form-check'><label class='form-check-label'><input class='checkbox' type='checkbox'/>" + document.querySelector(".todo-list-input").value + "<i class='input-helper'></i></label></div><i class='remove mdi mdi-close-circle-outline'></i></li>"
-
+  document.querySelector(".todo-list").innerHTML += "<li><div class='form-check'><label class='form-check-label'><input class='checkbox' type='checkbox'/>" + document.querySelector(".todo-list-input").value + "<i class='input-helper'></i></label></div><div class='setting-menu settings'><i class='uil uil-pen'></i><i class='uil uil-trash'></i></div></li>"
 }
 
 (function($) {
