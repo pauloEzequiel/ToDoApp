@@ -68,7 +68,7 @@ body{
    color: #000000;
    margin-bottom: 0.625rem;
    text-transform: capitalize;
-   font-size: 0.875rem;
+   font-size: 1rem;
    font-weight: 500
 }
 .add-items{
@@ -360,7 +360,11 @@ input[type="radio"], input[type="checkbox"]{
 .setting-menu{
    margin-left: auto !important;
    font-size: large;
-   
+}
+
+.setting-menu i {
+   margin-left: 1rem;
+   color: #405189;
 }
 
 
