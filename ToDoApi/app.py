@@ -8,6 +8,7 @@ app = Flask(__name__)
 api = Api(app)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
+app.config['CORS_RESOURCES'] = {r"/tarefas/*": {"origins": "*"}}
 
 api.add_resource(Tarefas,'/tarefas') 
 api.add_resource(Tarefa,'/tarefas/<string:tarefa_id>') 
