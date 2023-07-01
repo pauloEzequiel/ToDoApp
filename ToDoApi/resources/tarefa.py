@@ -27,6 +27,20 @@ lista_tarefas = [
      }
 ]
 
+class UpdateTarefa(Resource):
+
+    def put(self,tarefa_id):
+         
+          tarefa = Tarefa.encontrar_tarefa(tarefa_id)
+          if(tarefa == None) :
+            return {'message': 'tarefa não localizada'},404
+        
+          tarefa_model = TarefaModel(tarefa_id, tarefa['descricao'], not bool(int(tarefa['concluido'])),tarefa['criado_em'],datetime.datetime.now().strftime("%c"))
+          tarefa_atualizada = tarefa_model.json()
+          tarefa.update(tarefa_atualizada)
+          return tarefa_atualizada,200
+
+
       
 class Tarefas(Resource):
     
@@ -88,5 +102,11 @@ class Tarefa(Resource):
             return {'message': 'tarefa deletada'}, 200
             
        return {'message': 'tarefa não localizada'},404
+    
+    
+    
+    
+
+    
 
       
