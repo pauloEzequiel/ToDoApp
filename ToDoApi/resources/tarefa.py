@@ -1,5 +1,8 @@
 from flask_restful import Resource, reqparse
 from models.tarefa import TarefaModel
+from sqlalchemy.exc import IntegrityError
+from resources.logger import logger
+from models import Session
 import datetime
 import uuid
 
@@ -41,24 +44,46 @@ class UpdateTarefa(Resource):
           return tarefa_atualizada,200
 
 
+
       
 class Tarefas(Resource):
     
     def get(self):
-        return{'Tarefa': lista_tarefas}
+        session = Session()
+        try:
+
+           return{'Tarefa':[ tarefa.json() for tarefa in session.query(TarefaModel).all()]}
+        except Exception as e:
+           logger.warning(f"Não foi possivel recuperar dados")
+           return {"Tarefa": [] }, 400
+
     
     def post(self):
+        """Adiciona um novo tarefas à base
+        """
+        session = Session()
         argumentos = reqparse.RequestParser()
         argumentos.add_argument('descricao')
         argumentos.add_argument('concluido')
 
         dados = argumentos.parse_args()
-        tarefa_model = TarefaModel(str(uuid.uuid4()),dados['descricao'],bool(int(dados['concluido'])),datetime.datetime.now().strftime("%c"),datetime.datetime.now().strftime("%c"))
-        nova_tarefa = tarefa_model.json()
-        lista_tarefas.append(nova_tarefa)
-        return nova_tarefa,201
-    
 
+        try:
+           tarefa_model = TarefaModel(str(uuid.uuid4()),dados['descricao'],bool(int(dados['concluido'])),datetime.datetime.now(),datetime.datetime.now())
+           session.add(tarefa_model)
+           session.commit()
+           logger.debug(f"Adicionado tarefa: '{dados['descricao']}'")
+           return tarefa_model.json(),201
+        except IntegrityError as e:
+           error_msg = "Produto de mesmo nome já salvo na base :/"
+           logger.warning(f"Erro ao adicionar produto '{dados['descricao']}', {error_msg}")
+           return {"mesage": error_msg}, 400
+        except Exception as e:
+           error_msg = "Não foi possível salvar novo item :/"
+           logger.warning(f"Erro ao adicionar tarefa '{dados['descricao']}', {error_msg}")
+           return {"mesage": error_msg}, 400
+
+         
 class Tarefa(Resource):
     argumentos = reqparse.RequestParser()
     argumentos.add_argument('descricao')
