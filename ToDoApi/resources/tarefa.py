@@ -6,29 +6,6 @@ from models import Session
 import datetime
 import uuid
 
-lista_tarefas = [
-     {
-        'tarefa_id':'11d4dc2e-375a-4b89-9ad4-aa30105385aa',
-        'descricao':'Codificar versão inicial da api python',
-        'concluido': True,
-        'criado_em': datetime.datetime.now().strftime("%c"),
-        'atualizado_em': datetime.datetime.now().strftime("%c"),
-     },
-     {
-        'tarefa_id':'78d4dc2e-789a-4b89-9ad4-aa30105385bb',
-        'descricao':'Commit da versão inicial da api',
-        'concluido': False,
-        'criado_em': datetime.datetime.now().strftime("%c"),
-        'atualizado_em': datetime.datetime.now().strftime("%c"),
-     },
-     {
-        'tarefa_id':'56d4dc2e-741a-4b1389-9ad4-aa30105385cc',
-        'descricao':'Entregar projeto no dia 22/06/2023',
-        'concluido': False,
-        'criado_em': datetime.datetime.now().strftime("%c"),
-        'atualizado_em': datetime.datetime.now().strftime("%c"),
-     }
-]
 
 class UpdateTarefa(Resource):
 
@@ -37,13 +14,14 @@ class UpdateTarefa(Resource):
           tarefa = Tarefa.encontrar_tarefa(tarefa_id)
           if(tarefa == None) :
             return {'message': 'tarefa não localizada'},404
+          
+          session = Session()
+          session.query(TarefaModel).filter(TarefaModel.tarefa_id == tarefa_id).update({TarefaModel.concluido : not tarefa.concluido, TarefaModel.atualizado_em: datetime.datetime.now()})
+          session.commit()
+          tarefa.concluido = not tarefa.concluido
+          tarefa.atualizado_em = datetime.datetime.now()
         
-          tarefa_model = TarefaModel(tarefa_id, tarefa['descricao'], not bool(int(tarefa['concluido'])),tarefa['criado_em'],datetime.datetime.now().strftime("%c"))
-          tarefa_atualizada = tarefa_model.json()
-          tarefa.update(tarefa_atualizada)
-          return tarefa_atualizada,200
-
-
+          return tarefa.json(),200
 
       
 class Tarefas(Resource):
@@ -51,7 +29,6 @@ class Tarefas(Resource):
     def get(self):
         session = Session()
         try:
-
            return{'Tarefa':[ tarefa.json() for tarefa in session.query(TarefaModel).all()]}
         except Exception as e:
            logger.warning(f"Não foi possivel recuperar dados")
@@ -76,7 +53,7 @@ class Tarefas(Resource):
            return tarefa_model.json(),201
         except IntegrityError as e:
            error_msg = "Produto de mesmo nome já salvo na base :/"
-           logger.warning(f"Erro ao adicionar produto '{dados['descricao']}', {error_msg}")
+           logger.warning(f"Erro ao adicionar tarefa '{dados['descricao']}', {error_msg}")
            return {"mesage": error_msg}, 400
         except Exception as e:
            error_msg = "Não foi possível salvar novo item :/"
@@ -90,43 +67,57 @@ class Tarefa(Resource):
     argumentos.add_argument('concluido') 
 
     def encontrar_tarefa(tarefa_id):
-        for tarefa in lista_tarefas:
-            if tarefa['tarefa_id'] == tarefa_id:
-                return tarefa
+        session = Session()
+        tarefa = session.query(TarefaModel).filter(TarefaModel.tarefa_id == tarefa_id).first()
+        if not tarefa :
+            return None
             
-        return None
+        return tarefa
      
     def get(self,tarefa_id):
+        """Consulta tarefa
+        """
         tarefa = Tarefa.encontrar_tarefa(tarefa_id)
         if(tarefa) :
-            return tarefa
+            return tarefa.json()
             
         return {'message': 'tarefa não localizada'},404
 
-    
 
     def put(self,tarefa_id):
+       """Atualiza tarefa ou caso não exista na base atualiza
+        """
        dados = Tarefa.argumentos.parse_args()
        tarefa = Tarefa.encontrar_tarefa(tarefa_id)
-       if(tarefa) :
-           tarefa_model = TarefaModel(tarefa_id, dados['descricao'],bool(int(dados['concluido'])),tarefa['criado_em'],datetime.datetime.now().strftime("%c"))
-           tarefa_atualizada = tarefa_model.json()
-           tarefa.update(tarefa_atualizada)
-           return tarefa_atualizada,200
-       tarefa_model = TarefaModel(tarefa_id,dados['descricao'],bool(int(dados['concluido'])),datetime.datetime.now().strftime("%c"),datetime.datetime.now().strftime("%c"))
-       nova_tarefa = tarefa_model.json()
-       lista_tarefas.append(nova_tarefa)
-       return nova_tarefa,201
+       print(tarefa)
+       if(tarefa):
+           session = Session()
+           session.query(TarefaModel).filter(TarefaModel.tarefa_id == tarefa_id).update({ TarefaModel.descricao : dados['descricao'],TarefaModel.concluido : bool(int(dados['concluido'])), TarefaModel.atualizado_em: datetime.datetime.now()})
+           session.commit()
+           tarefa.descricao = dados['descricao']
+           tarefa.concluido = bool(int(dados['concluido']))
+           tarefa.atualizado_em = datetime.datetime.now()
+           
+           return tarefa.json(),200
+       
+       session = Session() 
+       nova_tarefa = TarefaModel(tarefa_id,dados['descricao'],bool(int(dados['concluido'])),datetime.datetime.now(),datetime.datetime.now())
+       session.add(nova_tarefa)
+       session.commit()
+
+       return nova_tarefa.json(),201
         
 
     def delete(self,tarefa_id):
-       global lista_tarefas
-       tarefa = Tarefa.encontrar_tarefa(tarefa_id)
-       if(tarefa) :
-            lista_tarefas = [tarefa for tarefa in lista_tarefas if tarefa['tarefa_id'] != tarefa_id]
-            return {'message': 'tarefa deletada'}, 200
+        """Excluir tarefa
+        """
+        session = Session()
+        linhas_afetadas = session.query(TarefaModel).filter(TarefaModel.tarefa_id == tarefa_id).delete()
+        session.commit()
+        if linhas_afetadas:
+         return {'message': 'tarefa deletada'}, 200
             
-       return {'message': 'tarefa não localizada'},404
+        return {'message': 'tarefa não localizada'},404
     
     
     
