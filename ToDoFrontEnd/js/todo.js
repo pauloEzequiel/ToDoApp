@@ -20,7 +20,7 @@ function salvar(){
   }
   
   if(isEditTask){
-    axios.put(`http://127.0.0.1:5000/tarefas/${task_id}`,{
+    axios.put(`http://127.0.0.1:5000/tarefa/${task_id}`,{
     descricao: texto,
     concluido: 0})
   .then((response) => {
@@ -36,7 +36,7 @@ function salvar(){
     return;
   }
 
-  axios.post(`http://127.0.0.1:5000/tarefas`,{
+  axios.post(`http://127.0.0.1:5000/tarefa`,{
     descricao: texto,
     concluido: 0
   })
@@ -97,7 +97,7 @@ function AlterarDescricaoBotao(btnText){
 
 function DeleteTarefa(tarefaSelecionada,tarefaId){
   
-  axios.delete(`http://127.0.0.1:5000/tarefas/${tarefaId}`)
+  axios.delete(`http://127.0.0.1:5000/tarefa/${tarefaId}`)
   .then((response) => {
     let menuDiv = tarefaSelecionada.closest('li');
     menuDiv.remove();
