@@ -2,19 +2,18 @@ from models.tarefa import TarefaModel
 from sqlalchemy.exc import IntegrityError
 from resources.logger import logger
 from models import Session
+from infra.repository.tarefas_repository import TarefaRepository
+from infra.entities.tarefas import Tarefas
 import datetime
 import uuid
 
-
-
 class TarefaManager:
     def adicionarTask(tarefa):
-        session = Session()
-    
+        
         try:
+           repo = TarefaRepository()
            tarefa_model = TarefaModel(str(uuid.uuid4()),tarefa.descricao,bool(tarefa.concluido),datetime.datetime.now(),datetime.datetime.now())
-           session.add(tarefa_model)
-           session.commit()
+           repo.inserirTarefa(str(uuid.uuid4()),tarefa.descricao,bool(tarefa.concluido),datetime.datetime.now(),datetime.datetime.now())
            logger.debug(f"Adicionado tarefa: '{tarefa.descricao}'")
            return tarefa_model.json(),201
         except IntegrityError as e:
@@ -35,16 +34,17 @@ class TarefaManager:
         return tarefa    
         
     def buscarTarefa(tarefa_id):
-        tarefa = TarefaManager.encontrar_tarefa(tarefa_id)
+        tarefa = TarefaRepository().obterTarefa(tarefa_id)
         if(tarefa) :
             return tarefa.json()
             
         return {'message': 'tarefa não localizada'},404
     
     def obterTodasTarefas():
-        session = Session()
         try:
-           return{'Tarefa':[ tarefa.json() for tarefa in session.query(TarefaModel).all()]}
+           repo = TarefaRepository()
+           return {'Tarefa':[ tarefa.json() for tarefa in repo.ObterTodas()]},200
+          
         except Exception as e:
            logger.warning(f"Não foi possivel recuperar dados")
            return {"Tarefa": [] }, 400

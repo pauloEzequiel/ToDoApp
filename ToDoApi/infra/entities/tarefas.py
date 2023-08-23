@@ -1,9 +1,9 @@
 import datetime
+from infra.configs.base import Base
 from sqlalchemy import Column, String,Boolean, DateTime
-from models import Base
 import uuid
 
-class TarefaModel(Base):
+class Tarefas(Base):
    __tablename__= 'tarefas'
 
    tarefa_id = Column(String(36), primary_key = True, default = str(uuid.uuid4()))
@@ -28,4 +28,3 @@ class TarefaModel(Base):
            'criado_em' : self.criado_em.strftime("%c"), 
            'atualizado_em' : self.atualizado_em.strftime("%c") 
        }
-   

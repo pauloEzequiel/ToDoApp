@@ -8,6 +8,7 @@ from schemas.tarefa import TarefaBody, TarefaSchema,obterTarefaSchema,ListaTaref
 from schemas.error import ErrorSchema
 
 
+
 info = Info(title="TO DO API", version="1.0.0")
 tarefa_tag = Tag(name="Gerenciador de Tarefas", description="Adição, visualização e remoção de tarefas na base")
 
@@ -33,6 +34,7 @@ def obterTarefa(path: obterTarefaSchema):
     """
        Endpoint destinado a obter uma tarefa por ID.
     """
+
     return TarefaManager.buscarTarefa(path.tarefa_id)
 
 @app.get('/tarefas', tags = [tarefa_tag], responses={"200": ListaTarefaViewSchema,"400":ErrorSchema})
