@@ -1,5 +1,5 @@
 from flask_restful import Api
-from resources.tarefa import TarefaManager
+from business.manager.tarefa_manager import TarefaManager
 from flask_cors import CORS
 from flask import redirect
 from flask_openapi3 import Info,Tag
