@@ -1,7 +1,5 @@
-from models.tarefa import TarefaModel
 from sqlalchemy.exc import IntegrityError
 from resources.logger import logger
-from models import Session
 from infra.repository.tarefas_repository import TarefaRepository
 from infra.entities.tarefas import Tarefas
 import datetime
@@ -12,8 +10,9 @@ class TarefaManager:
         
         try:
            repo = TarefaRepository()
-           tarefa_model = TarefaModel(str(uuid.uuid4()),tarefa.descricao,bool(tarefa.concluido),datetime.datetime.now(),datetime.datetime.now())
-           repo.inserirTarefa(str(uuid.uuid4()),tarefa.descricao,bool(tarefa.concluido),datetime.datetime.now(),datetime.datetime.now())
+
+           tarefa_model = Tarefas(str(uuid.uuid4()),tarefa.descricao,bool(tarefa.concluido),datetime.datetime.now(),datetime.datetime.now())
+           repo.inserirTarefa(tarefa_model.tarefa_id,tarefa_model.descricao,tarefa_model.concluido,tarefa_model.criado_em,tarefa_model.criado_em)
            logger.debug(f"Adicionado tarefa: '{tarefa.descricao}'")
            return tarefa_model.json(),201
         except IntegrityError as e:
@@ -26,15 +25,14 @@ class TarefaManager:
            return {"message": error_msg}, 400
         
     def encontrar_tarefa(tarefa_id):
-        session = Session()
-        tarefa = session.query(TarefaModel).filter(TarefaModel.tarefa_id == tarefa_id).first()
+        tarefa = TarefaRepository().obterTarefa(tarefa_id)
         if not tarefa :
             return None
             
         return tarefa    
         
     def buscarTarefa(tarefa_id):
-        tarefa = TarefaRepository().obterTarefa(tarefa_id)
+        tarefa = TarefaManager.encontrar_tarefa(tarefa_id)
         if(tarefa) :
             return tarefa.json()
             
@@ -55,9 +53,7 @@ class TarefaManager:
         if(tarefa == None) :
             return {'message': 'tarefa não localizada'},404
           
-        session = Session()
-        session.query(TarefaModel).filter(TarefaModel.tarefa_id == tarefa_id).update({TarefaModel.concluido : not tarefa.concluido, TarefaModel.atualizado_em: datetime.datetime.now()})
-        session.commit()
+        TarefaRepository().atualizarTarefa(tarefa_id, tarefa.descricao, not tarefa.concluido, datetime.datetime.now())
         tarefa.concluido = not tarefa.concluido
         tarefa.atualizado_em = datetime.datetime.now()
         
@@ -65,29 +61,24 @@ class TarefaManager:
     
     def atualizarTarefa(tarefa_id,tarefaAtualizada):
        tarefa = TarefaManager.encontrar_tarefa(tarefa_id)
+       repo = TarefaRepository()
        if(tarefa):
-           session = Session()
-           session.query(TarefaModel).filter(TarefaModel.tarefa_id == tarefa_id).update({ TarefaModel.descricao : tarefaAtualizada.descricao,TarefaModel.concluido : bool(int(tarefaAtualizada.concluido)), TarefaModel.atualizado_em: datetime.datetime.now()})
-           session.commit()
+           repo.atualizarTarefa(tarefa_id, tarefaAtualizada.descricao, bool(int(tarefaAtualizada.concluido)),datetime.datetime.now())
            tarefa.descricao = tarefaAtualizada.descricao
            tarefa.concluido = bool(int(tarefaAtualizada.concluido))
            tarefa.atualizado_em = datetime.datetime.now()
            
            return tarefa.json(),200
        
-       session = Session() 
-       nova_tarefa = TarefaModel(tarefa_id,tarefaAtualizada.descricao,bool(int(tarefaAtualizada.concluido)),datetime.datetime.now(),datetime.datetime.now())
-       session.add(nova_tarefa)
-       session.commit()
+       nova_tarefa = Tarefas(tarefa_id,tarefaAtualizada.descricao,bool(int(tarefaAtualizada.concluido)),datetime.datetime.now(),datetime.datetime.now())
+       repo.inserirTarefa(nova_tarefa.tarefa_id, nova_tarefa.descricao, nova_tarefa.concluido, nova_tarefa.criado_em, nova_tarefa.criado_em)
 
        return nova_tarefa.json(),201
   
     def apagarTarefa(tarefa_id):
-        session = Session()
-        linhas_afetadas = session.query(TarefaModel).filter(TarefaModel.tarefa_id == tarefa_id).delete()
-        session.commit()
+        linhas_afetadas = TarefaRepository().apagarTarefa(tarefa_id)
         if linhas_afetadas:
-         return {'message': 'tarefa deletada'}, 200
+          return {'message': 'tarefa deletada'}, 200
             
         return {'message': 'tarefa não localizada'},404
     

@@ -34,3 +34,24 @@ class TarefaRepository:
              except Exception as exception:
                 db.session.rollback()
                 raise exception
+             
+    def atualizarTarefa(self,tarefa_id,descricao,concluido,atualizado_em):
+        with DBConnectionHandler() as db:
+            try:
+                db.session.query(Tarefas)\
+                    .filter(Tarefas.tarefa_id == tarefa_id)\
+                    .update({ Tarefas.descricao : descricao,Tarefas.concluido : concluido , Tarefas.atualizado_em: atualizado_em})
+                db.session.commit()
+            except Exception as exception:
+                db.session.rollback()
+                raise exception
+    
+    def apagarTarefa(self, tarefa_id):
+        with DBConnectionHandler() as db:
+            try:
+                linhas_afetadas = db.session.query(Tarefas).filter(Tarefas.tarefa_id == tarefa_id).delete()
+                db.session.commit()
+                return linhas_afetadas
+            except Exception as exception:
+                db.session.rollback()
+                raise exception
