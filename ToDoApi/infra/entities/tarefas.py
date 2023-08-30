@@ -7,7 +7,7 @@ class Tarefas(Base):
    __tablename__= 'tarefas'
 
    tarefa_id = Column(String(36), primary_key = True, default = str(uuid.uuid4()))
-   descricao = Column(String)
+   descricao = Column(String(300))
    concluido = Column(Boolean)
    criado_em = Column(DateTime,default=datetime.datetime.utcnow)
    atualizado_em = Column(DateTime,default=datetime.datetime.utcnow)
