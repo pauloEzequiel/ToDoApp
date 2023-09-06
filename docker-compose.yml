@@ -1,8 +1,9 @@
 version: '3'
 services:
   db:
-    image: mysql:latest
-    container_name: todo-db
+    image: mysql:5.7
+    container_name: db
+    restart: always
     ports: 
       - 3309:3306 
     environment:
@@ -12,26 +13,39 @@ services:
       MYSQL_PASSWORD: usr_todo
     volumes:
       - db-data:/var/lib/mysql
-      - db-data-config:/etc/mysql
     networks:
       - mysql-python-network
 
-  api:
+  todo-api:
     container_name: todo-api
     build:
       context: ./ToDoApi
-    
     ports:
       - "5000:5000"
     depends_on:
       - db
     networks:
       - mysql-python-network
+      - python-front-network
+
+  front:
+    container_name: todo-front
+    build:
+      context: ./ToDoFrontEnd
+    ports:
+      - "8080:80"
+    depends_on:
+      - todo-api
+    networks:
+      - python-front-network
 
 networks:
   mysql-python-network:
     name: mysql-python-network
+    driver: bridge
+  python-front-network:
+    name: python-front-network
+    driver: bridge
 volumes:
   db-data:
-  db-data-config:
    

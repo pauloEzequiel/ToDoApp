@@ -20,7 +20,7 @@ function salvar(){
   }
   
   if(isEditTask){
-    axios.put(`http://127.0.0.1:5000/tarefa/${task_id}`,{
+    axios.put(`http://localhost:5000/tarefa/${task_id}`,{
     descricao: texto,
     concluido: 0})
   .then((response) => {
@@ -36,7 +36,7 @@ function salvar(){
     return;
   }
 
-  axios.post(`http://127.0.0.1:5000/tarefa`,{
+  axios.post(`http://localhost:5000/tarefa`,{
     descricao: texto,
     concluido: 0
   })
@@ -55,7 +55,7 @@ function salvar(){
 
 function ObterTodasAsTarefas() {
   
-axios.get(`http://127.0.0.1:5000/tarefas`)
+axios.get(`http://localhost:5000/tarefas`)
     .then((response) => {
       const tarefas = response.data;
       var lista = document.querySelector(".todo-list");
@@ -97,7 +97,7 @@ function AlterarDescricaoBotao(btnText){
 
 function DeleteTarefa(tarefaSelecionada,tarefaId){
   
-  axios.delete(`http://127.0.0.1:5000/tarefa/${tarefaId}`)
+  axios.delete(`http://localhost:5000/tarefa/${tarefaId}`)
   .then((response) => {
     let menuDiv = tarefaSelecionada.closest('li');
     menuDiv.remove();
@@ -109,7 +109,7 @@ function DeleteTarefa(tarefaSelecionada,tarefaId){
 }
 
 function AtualizarStatus(tarefaId){
-  axios.put(`http://127.0.0.1:5000/concluirTarefa/${tarefaId}`)
+  axios.put(`http://localhost:5000/concluirTarefa/${tarefaId}`)
   .catch((error) => {
     alert("Erro ao realizar operação");
     console.error(error);

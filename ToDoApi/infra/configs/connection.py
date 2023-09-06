@@ -9,7 +9,7 @@ class DBConnectionHandler:
     def __init__(self) -> None:
         #db_path = "database/"
         #self.__create_database_dir(db_path)
-        self.__connection_string = 'mysql+mysqldb://usr_todo:usr_todo@localhost:3309/bd_todo'
+        self.__connection_string = 'mysql+mysqldb://usr_todo:usr_todo@db:3306/bd_todo'
         self.__engine = self.__create_database_engine()
         self.__create_Bd()
         self.session = None
