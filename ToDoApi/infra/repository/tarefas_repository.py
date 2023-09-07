@@ -8,7 +8,6 @@ class TarefaRepository:
         with DBConnectionHandler() as db:
             try:
                 data = db.session.query(Tarefas).all()
-                print(data)
                 return data
             except Exception as exception:
                 db.session.rollback()

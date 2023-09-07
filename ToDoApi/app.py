@@ -1,13 +1,11 @@
 from flask_restful import Api
-from business.manager.tarefa_manager import TarefaManager
+from dominio.manager.tarefa_manager import TarefaManager
 from flask_cors import CORS
 from flask import redirect
 from flask_openapi3 import Info,Tag
 from flask_openapi3 import OpenAPI
 from schemas.tarefa import TarefaBody, TarefaSchema,obterTarefaSchema,ListaTarefaViewSchema
 from schemas.error import ErrorSchema
-
-
 
 info = Info(title="TO DO API", version="1.0.0")
 tarefa_tag = Tag(name="Gerenciador de Tarefas", description="Adição, visualização e remoção de tarefas na base")
