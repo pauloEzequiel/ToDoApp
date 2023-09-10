@@ -27,6 +27,19 @@ services:
     networks:
       - mysql-python-network
       - python-front-network
+    
+  todo-api-graph:
+    container_name: todo-api-graph
+    build:
+      context: ./ToDoApi
+      dockerfile: DockerfileGraph
+    ports:
+      - "5001:5001"
+    depends_on:
+      - db
+    networks:
+      - mysql-python-network
+      - python-front-network  
 
   front:
     container_name: todo-front
