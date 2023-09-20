@@ -1,7 +1,9 @@
 import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType
-from infra.entities.tarefas import Tarefas as tarefaModel
+from infra.entities.tarefas import Tarefas as tarefaModel, Marcadores
+
 from infra.repository.tarefas_repository import TarefaRepository
+from infra.repository.marcadores_repository import MarcadoresRepository
 import datetime
 import uuid
 
@@ -10,9 +12,15 @@ class Tarefa(SQLAlchemyObjectType):
     class Meta:
         model = tarefaModel
 
+
+class Marcador(SQLAlchemyObjectType):
+    class Meta:
+        model = Marcadores
+
 class Query(graphene.ObjectType):
     tarefa = graphene.Field(Tarefa, id=graphene.ID(required=True))
     tarefas = graphene.List(Tarefa)
+    marcadores = graphene.List(Marcador)
 
     def resolve_tarefa(self, info, **kwargs):
         return TarefaRepository().obterTarefa(kwargs.get('id'))
@@ -20,6 +28,10 @@ class Query(graphene.ObjectType):
     def resolve_tarefas(self, info):
          repo = TarefaRepository()
          return repo.ObterTodas()
+    
+    def resolve_marcadores(self,info):
+        repo = MarcadoresRepository()
+        return repo.ObterTodosMarcadores()
     
 
 class CriarTarefa(graphene.Mutation):
@@ -50,12 +62,28 @@ class ApagarTarefa(graphene.Mutation):
             return ApagarTarefa(success = True, message = 'Tarefa Apagada')
             
          return ApagarTarefa(success = False, message = 'Tarefa não localizada')
+ 
+class TrocarStatusTarefa(graphene.Mutation):
+    class Arguments:
+        tarefa_id = graphene.String()
+
+    success = graphene.Boolean()
+    message = graphene.String()
+
+    def mutate (root,info,**kwargs):
+        tarefa = TarefaRepository().obterTarefa(kwargs.get('tarefa_id'))
+
+        if(tarefa == None) :
+            return TrocarStatusTarefa(success = False, message = 'Tarefa não localizada')
+          
+        TarefaRepository().atualizarTarefa(kwargs.get('tarefa_id'), tarefa.descricao, not tarefa.concluido, datetime.datetime.now())
+        
+        return TrocarStatusTarefa(success = True, message = 'Status da tarefa atualizado')
     
 class Mutation(graphene.ObjectType):
     criar_tarefa = CriarTarefa.Field()
     apagar_tarefa = ApagarTarefa.Field()
+    atualizar_status_tarefa = TrocarStatusTarefa.Field()
 
-    
-    
-schema = graphene.Schema(query=Query, mutation=Mutation, types=[Tarefa])
+schema = graphene.Schema(query=Query, mutation=Mutation, types=[Tarefa,Marcador])
    

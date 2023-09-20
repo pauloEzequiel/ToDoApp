@@ -1,10 +1,11 @@
 # ToDO API
 
-MVP desenvolvido com o intuito de alicerçar o conteúdo observado na Sprint **Desenvolvimento Full Stack básico**
+MVP desenvolvido com o intuito de alicerçar o conteúdo observado na Sprint.
+
+
 
 ---
-## Como instalar e executar a API
-
+## Como instalar e executar localmente
 
 Será necessário ter todas as libs python listadas no `requirements.txt` instaladas.
 Após clonar o repositório, é necessário ir ao diretório raiz, pelo terminal, para poder executar os comandos descritos abaixo.
@@ -17,8 +18,40 @@ Após clonar o repositório, é necessário ir ao diretório raiz, pelo terminal
 
 Este comando instala as dependências/bibliotecas, descritas no arquivo `requirements.txt`.
 
-Para executar a API  basta executar:
+Para executar a API REST executar:
 
 ```
-(ambvir)$ python app.py
+(ambvir)$ flask run --host 0.0.0.0 --port 5000
 ```
+
+E para executar a API com Graphql executar:
+
+```
+(ambvir)$ flask --app graphApp run --host 0.0.0.0 --port 5001
+```
+---
+### Acesso no browser
+
+ - Abra o [http://localhost:5000/openapi/](http://localhost:5000/openapi/) no navegador para verificar o status da API Rest em execução.
+
+ - Abra o [http://localhost:5001/graphql](http://localhost:5001/graphql) no navegador para verificar o status da API Graph em execução.
+
+---
+## Como instalar e executar com Docker
+
+Certifique-se de ter o [Docker](https://docs.docker.com/engine/install/) instalado e em execução em sua máquina.
+
+Navegue até o diretório que contém o Docker-compose.yml no terminal.
+Execute **como administrador** o seguinte comando para construir todos os contêiner da aplicação:
+
+```
+$ docker-compose up 
+```
+---
+### Acesso no browser
+
+ - Abra o o [http://localhost:8080/](http://localhost:8080) no navegador para verificar execução do front que interage com os demais componentes docker.
+
+ - Abra o [http://localhost:5000/openapi/](http://localhost:5000/openapi/) no navegador para verificar o status da API Rest em execução.
+
+ - Abra o [http://localhost:5001/graphql](http://localhost:5001/graphql) no navegador para verificar o status da API Graph em execução.
