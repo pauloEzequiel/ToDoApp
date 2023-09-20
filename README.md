@@ -2,11 +2,6 @@
 
 MVP desenvolvido com o intuito de alicerçar o conteúdo observado na Sprint.
 
-
----
-## Componentes de aplicação
-
-<img src="diagrama _todo_app.jpg" alt="Componentes da aplicação"
 ---
 ## Como instalar e executar com Docker
 
